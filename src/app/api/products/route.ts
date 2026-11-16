@@ -76,6 +76,9 @@ export async function GET() {
       announcement: announcementSetting?.value ?? '',
       updatedAt,
       categories: shaped,
+    }, {
+      // CDN keeps the answer for 20s, so most visitors get it instantly
+      headers: { 'Cache-Control': 'public, s-maxage=20, stale-while-revalidate=120' },
     })
   } catch (error) {
     console.error('GET /api/products error:', error)
