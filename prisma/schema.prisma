@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  sortOrder Int       @default(0)
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model Product {
+  id         Int          @id @default(autoincrement())
+  name       String
+  unit       String       @default("কেজি")
+  categoryId Int
+  sortOrder  Int          @default(0)
+  isActive   Boolean      @default(true)
+  category   Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  prices     PriceEntry[]
+  image      ProductImage?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
+model PriceEntry {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  date      String // YYYY-MM-DD (Asia/Dhaka)
+  price     Float
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, date])
+}
+
+model Setting {
+  key   String @id
+  value String
+  updatedAt DateTime @updatedAt
+}
+
+model ProductImage {
+  productId Int      @id
+  data      String // data URL (small, resized JPEG)
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
